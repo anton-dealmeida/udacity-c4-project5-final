@@ -28,6 +28,7 @@ provider:
   environment:
     TODOS_TABLE: Todos-${self:provider.stage}
     AUTH_0_SECRET: 6PkgqdaK0BEniIW065R2CuVjMWpE6UXsMZhPNC5Viw-1RPZL3KljPOleh2H5XJxV
+    CREATED_AT_INDEX: CreatedAtIndex
     S3_BUCKET: sls-da-todo-bucket-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
 
@@ -52,7 +53,8 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/UserIdIndex
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.CREATED_AT_INDEX}
+
   # TODO: Configure this function
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
@@ -136,7 +138,7 @@ resources:
           - AttributeName: todoId
             KeyType: HASH
         GlobalSecondaryIndexes:
-          - IndexName: UserIdIndex
+          - IndexName: ${self:provider.environment.CREATED_AT_INDEX}
             KeySchema:
               - AttributeName: userId
                 KeyType: HASH

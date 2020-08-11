@@ -18,8 +18,12 @@ export const handler = middy(
 
     const items = await getTodos(userId)
 
+
     return {
       statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*'
+      },
       body: JSON.stringify({
         items
       })

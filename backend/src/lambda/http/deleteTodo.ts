@@ -20,6 +20,6 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     headers: {
       'Access-Control-Allow-Origin': '*'
     },
-    body: 'Item removed'
+    body: `${todoId} removed`
   }
 }

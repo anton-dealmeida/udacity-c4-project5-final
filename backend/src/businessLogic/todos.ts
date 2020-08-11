@@ -30,6 +30,7 @@ export async function createTodo(
 }
 
 export async function getTodos(userId: string): Promise<TodoItem[]> {
+    logger.info(`Calling getTodos port ${userId}`)
     return await todoAccess.getTodos(userId)
 }
 

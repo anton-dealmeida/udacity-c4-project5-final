@@ -30,6 +30,8 @@ export class TodoAccess {
     }
 
     async getTodos(userId: string): Promise<TodoItem[]> {
+        logger.info(`Querying ${this.todosTable} on ${this.createdAtIndex} for todos of user ${userId}`)
+
         const result = await this.docClient
             .query({
                 TableName: this.todosTable,
@@ -38,7 +40,7 @@ export class TodoAccess {
                 ExpressionAttributeValues: {
                     ':userId': userId
                 }
-            })
+            }, function (err, data) { logger.info(`Query returned: ${err ? err : data}`) })
             .promise()
 
         logger.info(`Found ${result.Count} todo items for user ${userId}`)
