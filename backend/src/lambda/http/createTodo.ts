@@ -1,43 +1,37 @@
-import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import * as AWS from 'aws-sdk'
 import 'source-map-support/register'
-import * as uuid from 'uuid'
-import { parseUserId } from '../../auth/utils'
+import * as middy from 'middy'
+import { cors } from 'middy/middlewares'
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
+import { getUserId } from '../utils'
+import { createTodo } from '../../businessLogic/todos'
+import { createLogger } from '../../utils/logger'
 
-const docClient = new AWS.DynamoDB.DocumentClient()
+const logger = createLogger('auth')
 
-const todosTable = process.env.TODOS_TABLE
+export const handler = middy(
+  async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+    const newTodo: CreateTodoRequest = JSON.parse(event.body)
+    const userId = getUserId(event)
 
-export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+    logger.info(`Received POST request for creating todo item from user ${userId}...`)
 
-  console.log("Event:", event);
+    const item = createTodo(newTodo, userId)
 
-  const todoId = uuid.v4()
-
-  const parsedBody = JSON.parse(event.body)
-
-  const authHeader = event.headers.Authorization
-  const authSplit = authHeader.split(" ")
-  const token = authSplit[1]
-
-  const item = {
-    todoId: todoId,
-    userId: parseUserId(token),
-    ...parsedBody
+    return {
+      statusCode: 201,
+      headers: {
+        'Access-Control-Allow-Origin': '*'
+      },
+      body: JSON.stringify({
+        item
+      })
+    }
   }
+)
 
-  await docClient.put({
-    TableName: todosTable,
-    Item: item
-  }).promise()
-
-  return {
-    statusCode: 201,
-    headers: {
-      'Access-Control-Allow-Origin': '*'
-    },
-    body: JSON.stringify({
-      item
-    })
-  }
-}
+handler.use(
+  cors({
+    credentials: true
+  })
+)

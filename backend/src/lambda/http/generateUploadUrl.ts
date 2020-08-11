@@ -1,52 +1,60 @@
-import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import * as AWS from 'aws-sdk'
-import * as uuid from 'uuid'
 import 'source-map-support/register'
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import { createLogger } from '../../utils/logger'
+import * as AWS from 'aws-sdk'
+import * as middy from 'middy'
+import { cors } from 'middy/middlewares'
+import * as AWSXRay from 'aws-xray-sdk'
 
-const docClient = new AWS.DynamoDB.DocumentClient()
+const logger = createLogger('auth')
 
-export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  const todoId = event.pathParameters.todoId
+const XAWS = AWSXRay.captureAWS(AWS)
 
-  const bucket = process.env.S3_BUCKET
-  const url_exp = process.env.SIGNED_URL_EXPIRATION
-  const todosTable = process.env.TODOS_TABLE
+const s3 = new XAWS.S3({
+  signatureVersion: 'v4'
+})
 
-  const imageId = uuid.v4()
+const bucketName = process.env.TODO_IMAGES_S3_BUCKET
+const urlExpiration = process.env.SIGNED_URL_EXPIRATION
 
-  const s3 = new AWS.S3({
-    signatureVersion: 'v4'
-  })
+export const handler = middy(
+  async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+    const todoId = event.pathParameters.todoId
 
-  // TODO: Return a presigned URL to upload a file for a TODO item with the provided id
-  const url = s3.getSignedUrl('putObject', {
-    Bucket: bucket,
-    Key: imageId,
-    Expires: url_exp
-  })
+    if (!todoId) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Missing todoId' })
+      }
+    }
 
-  const imageUrl = `https://${bucket}.s3.amazonaws.com/${imageId}`
+    logger.info(
+      `Received request for generating signed URL for todo item ${todoId}`
+    )
 
-  const updateUrlOnTodo = {
-    TableName: todosTable,
-    Key: { "todoId": todoId },
-    UpdateExpression: "set attachmentUrl = :a",
-    ExpressionAttributeValues: {
-      ":a": imageUrl
-    },
-    ReturnValues: "Updated_New"
+    logger.info('Geting signed URL for todo...')
+
+    const url = getUploadUrl(todoId)
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        uploadUrl: url
+      })
+    }
   }
+)
 
-  await docClient.update(updateUrlOnTodo).promise()
+handler.use(
+  cors({
+    credentials: true
+  })
+)
 
-  return {
-    statusCode: 201,
-    headers: {
-      'Access-Control-Allow-Origin': '*'
-    },
-    body: JSON.stringify({
-      imageUrl: imageUrl,
-      uploadUrl: url
-    })
-  }
+function getUploadUrl(todoId: string) {
+  return s3.getSignedUrl('putObject', {
+    Bucket: bucketName,
+    Key: todoId,
+    Expires: urlExpiration
+  })
 }
