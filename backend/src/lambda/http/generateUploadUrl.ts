@@ -14,7 +14,7 @@ const s3 = new XAWS.S3({
   signatureVersion: 'v4'
 })
 
-const bucketName = process.env.TODO_IMAGES_S3_BUCKET
+const bucketName = process.env.S3_BUCKET
 const urlExpiration = process.env.SIGNED_URL_EXPIRATION
 
 export const handler = middy(
@@ -32,7 +32,7 @@ export const handler = middy(
       `Received request for generating signed URL for todo item ${todoId}`
     )
 
-    logger.info('Geting signed URL for todo...')
+    logger.info(`Geting signed URL for todo ${todoId}`)
 
     const url = getUploadUrl(todoId)
 

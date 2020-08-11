@@ -21,7 +21,7 @@ export class TodoAccess {
             .put({
                 TableName: this.todosTable,
                 Item: todo
-            })
+            }, function (err, data) { err ? logger.info(`Error: ${err}`) : logger.info(`Success: ${data}`) })
             .promise()
 
         logger.info(`Saved new todo item ${todo.todoId} for user ${todo.userId}`)
@@ -74,7 +74,7 @@ export class TodoAccess {
                     '#dueDate': 'dueDate',
                     '#done': 'done'
                 }
-            })
+            }, function (err, data) { err ? logger.info(`Error: ${err}`) : logger.info(`Success: ${data}`) })
             .promise()
     }
 
@@ -83,12 +83,10 @@ export class TodoAccess {
             .delete({
                 TableName: this.todosTable,
                 Key: {
-                    userId,
-                    todoId
+                    todoId,
+                    userId
                 }
-            })
+            }, function (err, data) { err ? logger.info(`Error! Failed to delete ${todoId} for ${userId}.\nMore info: ${err}`) : logger.info(`Success! Deleted ${todoId} for user ${userId}.\nMore info:${data}`) })
             .promise()
-
-        logger.info(`Deleted todo item ${todoId}`)
     }
 }
