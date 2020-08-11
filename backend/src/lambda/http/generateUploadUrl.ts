@@ -37,7 +37,7 @@ export const handler = middy(
     const url = getUploadUrl(todoId)
 
     return {
-      statusCode: 200,
+      statusCode: 202,
       body: JSON.stringify({
         uploadUrl: url
       })

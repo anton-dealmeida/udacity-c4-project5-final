@@ -11,7 +11,15 @@ const logger = createLogger('auth')
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    const newTodo: CreateTodoRequest = JSON.parse(event.body)
+    const newTodo: CreateTodoRequest = typeof event.body === "string" ? JSON.parse(event.body) : event.body
+    if (!newTodo.name) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          error: 'Error: The name is empty.'
+        })
+      }
+    }
     const userId = getUserId(event)
 
     logger.info(`Received POST request for creating todo item from user ${userId}...`)
@@ -21,7 +29,8 @@ export const handler = middy(
     return {
       statusCode: 201,
       headers: {
-        'Access-Control-Allow-Origin': '*'
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true
       },
       body: JSON.stringify({
         item

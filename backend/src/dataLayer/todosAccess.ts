@@ -50,43 +50,41 @@ export class TodoAccess {
         return items as TodoItem[]
     }
 
-    async updateTodo(
-        userId: string,
-        todoId: string,
-        updatedTodo: UpdateTodoRequest
-    ) {
+    async updateTodo(userId: string, todoId: string, updatedTodo: UpdateTodoRequest) {
+        const result = await this.docClient.query({
+            TableName: this.todosTable,
+            IndexName: this.createdAtIndex,
+            KeyConditionExpression: 'userId = :userId and todoId = :todoId',
+            ExpressionAttributeValues: {
+                ':userId': userId,
+                ':todoId': todoId
+            }
+        }).promise()
+
+        const updatedItem = {
+            userId: userId,
+            createdAt: result.Items[0].createdAt,
+            todoId: todoId,
+            ...updatedTodo,
+            attachmentUrl: result.Items[0].attachmentUrl
+        }
+
         await this.docClient
-            .update({
+            .put({
                 TableName: this.todosTable,
-                Key: {
-                    userId,
-                    todoId
-                },
-                UpdateExpression:
-                    'set #name = :name, #dueDate = :duedate, #done = :done',
-                ExpressionAttributeValues: {
-                    ':name': updatedTodo.name,
-                    ':duedate': updatedTodo.dueDate,
-                    ':done': updatedTodo.done
-                },
-                ExpressionAttributeNames: {
-                    '#name': 'name',
-                    '#dueDate': 'dueDate',
-                    '#done': 'done'
-                }
+                Item: updatedItem
             }, function (err, data) { err ? logger.info(`Error: ${err}`) : logger.info(`Success: ${data}`) })
             .promise()
     }
 
     async deleteTodo(userId: string, todoId: string) {
-        await this.docClient
-            .delete({
-                TableName: this.todosTable,
-                Key: {
-                    todoId,
-                    userId
-                }
-            }, function (err, data) { err ? logger.info(`Error! Failed to delete ${todoId} for ${userId}.\nMore info: ${err}`) : logger.info(`Success! Deleted ${todoId} for user ${userId}.\nMore info:${data}`) })
+        logger.info(`Deleting todoId: ${todoId} for userId: ${userId}`)
+        await this.docClient.delete({
+            TableName: this.todosTable,
+            Key: {
+                todoId: todoId as String
+            }
+        }, function (err, data) { err ? logger.info(`Error! Failed to delete ${todoId} for ${userId}.\nMore info: ${err}`) : logger.info(`Success! Deleted ${todoId} for user ${userId}.\nMore info:${data}`) })
             .promise()
     }
 }

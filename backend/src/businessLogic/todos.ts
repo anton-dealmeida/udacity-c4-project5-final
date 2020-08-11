@@ -9,12 +9,9 @@ const logger = createLogger('auth')
 
 const todoAccess = new TodoAccess()
 
-const bucketName = process.env.TODO_IMAGES_S3_BUCKET
+const bucketName = process.env.S3_BUCKET
 
-export async function createTodo(
-    createTodoRequest: CreateTodoRequest,
-    userId: string
-): Promise<TodoItem> {
+export async function createTodo(createTodoRequest: CreateTodoRequest, userId: string): Promise<TodoItem> {
     logger.info('Generating uuid.')
 
     const itemId = uuid.v4()
