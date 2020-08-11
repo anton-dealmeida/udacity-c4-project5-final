@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "d0700d24-79ec-487e-8403-b565bef7f8e0",
+		"_postman_id": "f3c7fb6e-7d9f-42a3-9b75-5911f7dcb595",
 		"name": "Udacity C4 Project",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -19,10 +19,6 @@
 								"type": "text"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "https://{{apiId}}.execute-api.{{region}}.amazonaws.com/dev/todos",
 							"protocol": "https",
@@ -200,7 +196,7 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "ce2b42d4-8cc5-4f30-a6ed-e7f0f303c3fd",
+						"id": "6a3dfe51-174f-4ab1-b102-2f6aaca57fde",
 						"type": "text/javascript",
 						"exec": [
 							""
@@ -210,21 +206,22 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "efb16c49-3866-4241-97d1-360ad72736d8",
+						"id": "2ac24b78-b6f3-4062-9e59-89c7f30a53a3",
 						"type": "text/javascript",
 						"exec": [
 							""
 						]
 					}
 				}
-			]
+			],
+			"protocolProfileBehavior": {}
 		}
 	],
 	"event": [
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "2e83c0fe-6650-44d5-a90f-4c27ff720d83",
+				"id": "1568d55a-593d-40ce-ab90-cba50186d1f9",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -234,7 +231,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "977c227e-2df3-42eb-9a48-ec25e2f7eeae",
+				"id": "cf83362f-5f47-418f-abda-78e53908f7ac",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -244,16 +241,20 @@
 	],
 	"variable": [
 		{
-			"id": "bf208e6b-f66d-4008-9366-dd541ff65425",
+			"id": "cfb306cb-087f-4189-a642-7896d25b2e48",
 			"key": "apiId",
-			"value": "",
-			"type": "string"
+			"value": ""
 		},
 		{
-			"id": "9bc6399a-d2bb-4f2d-9ffa-8480370d383c",
+			"id": "994f9d67-ff6b-4e4b-92a8-2bda1f7a73dc",
 			"key": "authToken",
-			"value": "",
-			"type": "string"
+			"value": ""
+		},
+		{
+			"id": "2504f7d5-4b2c-4fb1-bdbd-029f44d5510a",
+			"key": "region",
+			"value": ""
 		}
-	]
+	],
+	"protocolProfileBehavior": {}
 }
