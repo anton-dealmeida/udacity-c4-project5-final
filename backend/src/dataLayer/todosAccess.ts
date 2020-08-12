@@ -70,7 +70,6 @@ export class TodoAccess {
             }
         }, function (err, data) { err ? logger.info(`Error! Failed to updated ${todoId} for ${userId}.\nMore info: ${err}`) : logger.info(`Success! Updated ${todoId} for user ${userId}.\nMore info:${data}`) })
             .promise();
-
     }
 
     async deleteTodo(userId: string, todoId: string) {
