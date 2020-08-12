@@ -153,6 +153,8 @@ resources:
         KeySchema:
           - AttributeName: todoId
             KeyType: HASH
+          - AttributeName: userId
+            KeyType: RANGE
         GlobalSecondaryIndexes:
           - IndexName: ${self:provider.environment.CREATED_AT_INDEX}
             KeySchema:

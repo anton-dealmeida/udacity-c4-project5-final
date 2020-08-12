@@ -31,11 +31,7 @@ export async function getTodos(userId: string): Promise<TodoItem[]> {
     return await todoAccess.getTodos(userId)
 }
 
-export async function updateTodo(
-    userId: string,
-    todoId: string,
-    updatedTodo: UpdateTodoRequest
-) {
+export async function updateTodo(userId: string, todoId: string, updatedTodo: UpdateTodoRequest) {
     logger.info(`User [${userId}] updated ${todoId}`)
     return await todoAccess.updateTodo(userId, todoId, updatedTodo)
 }

@@ -51,30 +51,26 @@ export class TodoAccess {
     }
 
     async updateTodo(userId: string, todoId: string, updatedTodo: UpdateTodoRequest) {
-        const result = await this.docClient.query({
+        await this.docClient.update({
             TableName: this.todosTable,
-            IndexName: this.createdAtIndex,
-            KeyConditionExpression: 'userId = :userId and todoId = :todoId',
+            Key: {
+                todoId,
+                userId
+            },
+            UpdateExpression: 'set #name = :n, #dueDate = :due, #done = :d',
             ExpressionAttributeValues: {
-                ':userId': userId,
-                ':todoId': todoId
+                ':n': updatedTodo.name,
+                ':due': updatedTodo.dueDate,
+                ':d': updatedTodo.done
+            },
+            ExpressionAttributeNames: {
+                '#name': 'name',
+                '#dueDate': 'dueDate',
+                '#done': 'done'
             }
-        }).promise()
+        }, function (err, data) { err ? logger.info(`Error! Failed to updated ${todoId} for ${userId}.\nMore info: ${err}`) : logger.info(`Success! Updated ${todoId} for user ${userId}.\nMore info:${data}`) })
+            .promise();
 
-        const updatedItem = {
-            userId: userId,
-            createdAt: result.Items[0].createdAt,
-            todoId: todoId,
-            ...updatedTodo,
-            attachmentUrl: result.Items[0].attachmentUrl
-        }
-
-        await this.docClient
-            .put({
-                TableName: this.todosTable,
-                Item: updatedItem
-            }, function (err, data) { err ? logger.info(`Error: ${err}`) : logger.info(`Success: ${data}`) })
-            .promise()
     }
 
     async deleteTodo(userId: string, todoId: string) {
@@ -82,7 +78,8 @@ export class TodoAccess {
         await this.docClient.delete({
             TableName: this.todosTable,
             Key: {
-                todoId: todoId as String
+                userId,
+                todoId
             }
         }, function (err, data) { err ? logger.info(`Error! Failed to delete ${todoId} for ${userId}.\nMore info: ${err}`) : logger.info(`Success! Deleted ${todoId} for user ${userId}.\nMore info:${data}`) })
             .promise()
